@@ -83,6 +83,6 @@ export function buildWhatsAppMessage(b: {
   ].join('\n');
 }
 
-export function buildWhatsAppUrl(groupLink: string, message: string): string {
-  return `${groupLink}?text=${encodeURIComponent(message)}`;
+export function buildWhatsAppUrl(groupLink: string, _message: string): string {
+  return groupLink;
 }
