@@ -13,6 +13,7 @@ import FareSummary from '@/components/FareSummary';
 import CustomerForm from '@/components/CustomerForm';
 import ConfirmationCard from '@/components/ConfirmationCard';
 import SuccessScreen from '@/components/SuccessScreen';
+import JoinGroupSection from '@/components/JoinGroupSection';
 import StickyCTA from '@/components/StickyCTA';
 
 const emptyCustomer: CustomerData = {
@@ -136,6 +137,15 @@ export default function App() {
           <Step n={1} title="Pilih Wilayah Layanan" done={!!regionId}>
             <RegionPicker value={regionId} onChange={setRegionId} />
           </Step>
+
+          {regionId && (() => {
+            const region = REGIONS.find((r) => r.id === regionId)!;
+            return (
+              <div className="animate-fade-up">
+                <JoinGroupSection regionName={region.name} whatsappUrl={region.whatsapp} />
+              </div>
+            );
+          })()}
 
           <Step n={2} title="Pilih Kendaraan" disabled={!regionId} done={!!vehicleId}>
             {!regionId ? (
