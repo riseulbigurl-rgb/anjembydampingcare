@@ -13,8 +13,8 @@ export default function ConfirmationCard({ booking }: Props) {
   const region = regionName(booking.regionId);
 
   const rows = [
-    { icon: MapPin, label: 'Titik Jemput', value: booking.pickup?.address },
-    { icon: Flag, label: 'Titik Antar', value: booking.dropoff?.address },
+    { icon: MapPin, label: 'Titik Jemput', value: booking.pickup?.url },
+    { icon: Flag, label: 'Titik Antar', value: booking.dropoff?.url },
     { icon: Ruler, label: 'Jarak', value: `${formatKm(booking.route!.distanceKm)} km` },
     { icon: Clock, label: 'Estimasi perjalanan', value: formatMinutes(booking.route!.durationMin) },
     { icon: Calendar, label: 'Tanggal', value: formatDateID(booking.customer.date) },

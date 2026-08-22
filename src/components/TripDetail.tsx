@@ -1,17 +1,14 @@
-import { Flag, Ruler, Clock, Loader2, AlertTriangle, MapPin } from 'lucide-react';
+import { Flag, Ruler, Clock, MapPin, ExternalLink, Info } from 'lucide-react';
 import type { PlaceInfo, RouteInfo } from '@/utils/booking';
 import { formatKm, formatMinutes } from '@/utils/format';
-import { RouteMap } from '@/components/RouteMap';
 
 interface Props {
   pickup: PlaceInfo | null;
   dropoff: PlaceInfo | null;
   route: RouteInfo | null;
-  status: 'idle' | 'loading' | 'success' | 'error';
-  error: string;
 }
 
-export default function TripDetail({ pickup, dropoff, route, status, error }: Props) {
+export default function TripDetail({ pickup, dropoff, route }: Props) {
   if (!pickup || !dropoff) return null;
 
   return (
@@ -20,25 +17,39 @@ export default function TripDetail({ pickup, dropoff, route, status, error }: Pr
         <span className="section-eyebrow">Detail Perjalanan</span>
       </div>
 
-      {pickup && dropoff && <RouteMap pickup={pickup} dropoff={dropoff} />}
-
-      <div className="mt-4 space-y-3">
+      <div className="space-y-3">
         <div className="flex items-start gap-3">
           <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-anj-accent/12 text-anj-accent">
             <MapPin size={14} />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold uppercase tracking-wide text-anj-muted">Jemput</p>
-            <p className="truncate text-sm font-semibold text-anj-ink">{pickup.address}</p>
+            <p className="break-all text-sm font-semibold text-anj-ink">{pickup.url}</p>
+            <a
+              href={pickup.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-0.5 inline-flex items-center gap-1 text-xs font-bold text-anj-accent hover:underline"
+            >
+              <ExternalLink size={11} /> Lihat di Maps
+            </a>
           </div>
         </div>
         <div className="flex items-start gap-3">
           <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-anj-accent/12 text-anj-accent">
             <Flag size={14} />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold uppercase tracking-wide text-anj-muted">Tujuan</p>
-            <p className="truncate text-sm font-semibold text-anj-ink">{dropoff.address}</p>
+            <p className="break-all text-sm font-semibold text-anj-ink">{dropoff.url}</p>
+            <a
+              href={dropoff.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-0.5 inline-flex items-center gap-1 text-xs font-bold text-anj-accent hover:underline"
+            >
+              <ExternalLink size={11} /> Lihat di Maps
+            </a>
           </div>
         </div>
       </div>
@@ -49,11 +60,7 @@ export default function TripDetail({ pickup, dropoff, route, status, error }: Pr
             <Ruler size={14} />
             <span className="text-[11px] font-bold uppercase tracking-wide">Jarak</span>
           </div>
-          {status === 'loading' ? (
-            <span className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-anj-muted">
-              <Loader2 size={14} className="animate-spin" /> Menghitung…
-            </span>
-          ) : route ? (
+          {route ? (
             <p className="mt-1 text-xl font-extrabold text-anj-ink">{formatKm(route.distanceKm)} km</p>
           ) : (
             <p className="mt-1 text-sm font-semibold text-anj-muted">-</p>
@@ -64,11 +71,7 @@ export default function TripDetail({ pickup, dropoff, route, status, error }: Pr
             <Clock size={14} />
             <span className="text-[11px] font-bold uppercase tracking-wide">Estimasi</span>
           </div>
-          {status === 'loading' ? (
-            <span className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-anj-muted">
-              <Loader2 size={14} className="animate-spin" /> Menghitung…
-            </span>
-          ) : route ? (
+          {route ? (
             <p className="mt-1 text-xl font-extrabold text-anj-ink">{formatMinutes(route.durationMin)}</p>
           ) : (
             <p className="mt-1 text-sm font-semibold text-anj-muted">-</p>
@@ -76,16 +79,11 @@ export default function TripDetail({ pickup, dropoff, route, status, error }: Pr
         </div>
       </div>
 
-      {status === 'loading' && (
-        <p className="mt-3 flex items-center gap-1.5 text-xs font-medium text-anj-muted">
-          <Loader2 size={13} className="animate-spin" /> Menghitung rute…
-        </p>
-      )}
-      {status === 'error' && (
-        <div className="mt-3 flex items-start gap-2 rounded-xl bg-red-50 p-3">
-          <AlertTriangle size={15} className="mt-0.5 shrink-0 text-red-500" />
-          <p className="text-xs font-medium leading-relaxed text-red-600">
-            {error || 'Lokasi belum dapat dihitung. Silakan coba pilih ulang titik jemput atau tujuan.'}
+      {route && (
+        <div className="mt-3 flex items-start gap-2 rounded-xl bg-anj-bg/50 p-3">
+          <Info size={14} className="mt-0.5 shrink-0 text-anj-accent" />
+          <p className="text-[11px] leading-relaxed text-anj-muted">
+            Jarak dihitung berdasarkan koordinat dari link Google Maps yang Anda masukkan, dengan faktor jalan sebenarnya. Estimasi final dapat berbeda tergantung rute driver.
           </p>
         </div>
       )}

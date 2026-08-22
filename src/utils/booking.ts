@@ -3,8 +3,7 @@ import { FARE_CONFIG } from '@/config';
 import { formatKm, formatMinutes, formatRupiah } from '@/utils/format';
 
 export interface PlaceInfo {
-  name: string;
-  address: string;
+  url: string;
   lat: number;
   lng: number;
 }
@@ -61,11 +60,11 @@ export function buildWhatsAppMessage(b: {
     '',
     'PERJALANAN',
     '📍 Titik Jemput:',
-    b.pickup.address,
+    b.pickup.url,
     `   (${b.pickup.lat}, ${b.pickup.lng})`,
     '',
     '📍 Titik Antar:',
-    b.dropoff.address,
+    b.dropoff.url,
     `   (${b.dropoff.lat}, ${b.dropoff.lng})`,
     '',
     '📏 Jarak:',

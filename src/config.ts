@@ -73,6 +73,3 @@ export const VEHICLES: VehicleConfig[] = [
     additionalFarePerKm: FARE_CONFIG.mobil.additionalFarePerKm,
   },
 ];
-
-export const GOOGLE_MAPS_API_KEY =
-  (import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined) ?? '';

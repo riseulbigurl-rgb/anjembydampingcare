@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Bike, Car, ChevronRight, Send, Sparkles, ShieldCheck, Clock4, MapPin } from 'lucide-react';
-import { FARE_CONFIG, REGIONS, VEHICLES, GOOGLE_MAPS_API_KEY, type VehicleId } from '@/config';
-import type { BookingState, CustomerData, PlaceInfo } from '@/utils/booking';
+import { FARE_CONFIG, REGIONS, type VehicleId } from '@/config';
+import type { BookingState, CustomerData, PlaceInfo, RouteInfo } from '@/utils/booking';
 import { buildWhatsAppMessage, buildWhatsAppUrl } from '@/utils/booking';
 import { calcFare, formatRupiah, generateBookingId, isValidWhatsAppNumber } from '@/utils/format';
-import { useDirections } from '@/components/RouteMap';
+import { estimateRoadKm, estimateMinutes } from '@/utils/maps';
 import RegionPicker from '@/components/RegionPicker';
 import VehiclePicker, { regionName } from '@/components/VehiclePicker';
 import LocationField from '@/components/LocationField';
@@ -12,7 +12,6 @@ import TripDetail from '@/components/TripDetail';
 import FareSummary from '@/components/FareSummary';
 import CustomerForm from '@/components/CustomerForm';
 import ConfirmationCard from '@/components/ConfirmationCard';
-import MapPickerModal from '@/components/MapPickerModal';
 import SuccessScreen from '@/components/SuccessScreen';
 import StickyCTA from '@/components/StickyCTA';
 
@@ -35,9 +34,14 @@ export default function App() {
   const [successUrl, setSuccessUrl] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
-  const [picker, setPicker] = useState<null | 'pickup' | 'dropoff'>(null);
-
-  const { route, status: routeStatus, error: routeError } = useDirections(pickup, dropoff);
+  const route: RouteInfo | null = useMemo(() => {
+    if (!pickup || !dropoff) return null;
+    const km = estimateRoadKm(
+      { lat: pickup.lat, lng: pickup.lng },
+      { lat: dropoff.lat, lng: dropoff.lng }
+    );
+    return { distanceKm: km, durationMin: estimateMinutes(km) };
+  }, [pickup, dropoff]);
 
   const fare = useMemo(() => {
     if (!vehicleId || !route) return null;
@@ -49,7 +53,6 @@ export default function App() {
     !!vehicleId &&
     !!pickup &&
     !!dropoff &&
-    routeStatus === 'success' &&
     !!route &&
     customer.name.trim().length > 1 &&
     isValidWhatsAppNumber(customer.whatsapp) &&
@@ -142,10 +145,10 @@ export default function App() {
             ) : (
               <LocationField
                 label="📍 Pilih titik jemput"
-                placeholder="Pilih titik jemput"
+                placeholder="Tempel link Google Maps lokasi jemput"
                 place={pickup}
-                onPick={() => setPicker('pickup')}
-                onChange={() => setPicker('pickup')}
+                onConfirm={setPickup}
+                onClear={() => setPickup(null)}
               />
             )}
           </Step>
@@ -156,25 +159,25 @@ export default function App() {
             ) : (
               <LocationField
                 label="📍 Pilih titik tujuan"
-                placeholder="Pilih titik tujuan"
+                placeholder="Tempel link Google Maps lokasi tujuan"
                 place={dropoff}
-                onPick={() => setPicker('dropoff')}
-                onChange={() => setPicker('dropoff')}
+                onConfirm={setDropoff}
+                onClear={() => setDropoff(null)}
               />
             )}
           </Step>
 
           {pickup && dropoff && (
-            <TripDetail pickup={pickup} dropoff={dropoff} route={route} status={routeStatus} error={routeError} />
+            <TripDetail pickup={pickup} dropoff={dropoff} route={route} />
           )}
 
-          {vehicleId && route && routeStatus === 'success' && (
+          {vehicleId && route && (
             <Step n={5} title="Estimasi Biaya" done>
               <FareSummary vehicleId={vehicleId} route={route} />
             </Step>
           )}
 
-          {route && routeStatus === 'success' && (
+          {route && (
             <Step n={6} title="Data Pemesan" done={!!customer.name && isValidWhatsAppNumber(customer.whatsapp) && !!customer.date && !!customer.time}>
               <CustomerForm value={customer} onChange={setCustomer} />
             </Step>
@@ -195,18 +198,6 @@ export default function App() {
       <Footer />
 
       <StickyCTA total={fare?.total ?? null} canSubmit={canSubmit} onSubmit={submit} />
-
-      <MapPickerModal
-        open={picker !== null}
-        title={picker === 'pickup' ? 'Pilih Titik Jemput' : 'Pilih Titik Antar'}
-        initial={picker === 'pickup' ? pickup : dropoff}
-        onConfirm={(place) => {
-          if (picker === 'pickup') setPickup(place);
-          else setDropoff(place);
-          setPicker(null);
-        }}
-        onClose={() => setPicker(null)}
-      />
     </div>
   );
 }
