@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
-import { CheckCircle2, MessageCircle, Home, Copy, ClipboardCheck, Send, AlertCircle } from 'lucide-react';
+import { CheckCircle2, MessageCircle, Home, Copy, ClipboardCheck, Send, AlertCircle, Users } from 'lucide-react';
 
 interface Props {
   bookingId: string;
   whatsappUrl: string;
   message: string;
+  regionName: string;
   onHome: () => void;
 }
 
-export default function SuccessScreen({ bookingId, whatsappUrl, message, onHome }: Props) {
+export default function SuccessScreen({ bookingId, whatsappUrl, message, regionName, onHome }: Props) {
   const [copied, setCopied] = useState(false);
   const [sentToGroup, setSentToGroup] = useState(false);
 
@@ -58,6 +59,28 @@ export default function SuccessScreen({ bookingId, whatsappUrl, message, onHome 
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 animate-pulse rounded-full bg-amber-400" />
             <span className="text-xs font-bold uppercase tracking-wide text-amber-500">Menunggu Konfirmasi</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 w-full rounded-2xl border-2 border-dashed border-anj-accent/25 bg-white/60 p-4 text-left">
+        <div className="flex items-start gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-anj-accent/12 text-anj-accent">
+            <Users size={18} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-bold text-anj-ink">Belum join grup WhatsApp {regionName}?</p>
+            <p className="mt-1 text-xs leading-relaxed text-anj-muted">
+              Join dulu agar booking Anda bisa dibaca oleh driver di kota Anda.
+            </p>
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-anj-accent hover:underline"
+            >
+              <MessageCircle size={13} /> Join Grup {regionName}
+            </a>
           </div>
         </div>
       </div>

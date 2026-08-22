@@ -34,6 +34,7 @@ export default function App() {
   const [bookingId, setBookingId] = useState('');
   const [successUrl, setSuccessUrl] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [successRegionName, setSuccessRegionName] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
   const distanceKm = parseFloat(distanceInput);
@@ -85,6 +86,7 @@ export default function App() {
     const url = buildWhatsAppUrl(region.whatsapp, msg);
     setSuccessUrl(url);
     setSuccessMessage(msg);
+    setSuccessRegionName(region.name);
     setSubmitted(true);
   };
 
@@ -92,6 +94,7 @@ export default function App() {
     setSubmitted(false);
     setSuccessUrl('');
     setSuccessMessage('');
+    setSuccessRegionName('');
     setBookingId('');
     setRegionId('');
     setVehicleId(null);
@@ -106,7 +109,7 @@ export default function App() {
     return (
       <div className="min-h-screen bg-anj-bg">
         <Header />
-        <SuccessScreen bookingId={bookingId} whatsappUrl={successUrl} message={successMessage} onHome={reset} />
+        <SuccessScreen bookingId={bookingId} whatsappUrl={successUrl} message={successMessage} regionName={successRegionName} onHome={reset} />
         <Footer />
       </div>
     );
