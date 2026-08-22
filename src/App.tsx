@@ -86,8 +86,6 @@ export default function App() {
     setSuccessUrl(url);
     setSuccessMessage(msg);
     setSubmitted(true);
-    navigator.clipboard?.writeText(msg).catch(() => {});
-    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const reset = () => {

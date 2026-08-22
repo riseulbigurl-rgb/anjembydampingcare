@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CheckCircle2, MessageCircle, Home, Copy, ClipboardCheck, Info } from 'lucide-react';
+import { CheckCircle2, MessageCircle, Home, Copy, ClipboardCheck } from 'lucide-react';
 
 interface Props {
   bookingId: string;
@@ -21,7 +21,7 @@ export default function SuccessScreen({ bookingId, whatsappUrl, message, onHome 
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch {
-      // fallback: select text area
+      // fallback handled by textarea select
     }
   };
 
@@ -35,7 +35,7 @@ export default function SuccessScreen({ bookingId, whatsappUrl, message, onHome 
 
       <h2 className="text-2xl font-extrabold text-anj-ink">Booking Anjem Siap Dikirim</h2>
       <p className="mt-2 text-sm leading-relaxed text-anj-muted">
-        Teks booking sudah otomatis tersalin. Buka grup WhatsApp, lalu tempel dan kirim pesannya.
+        Pilih salah satu cara mengirim pesan booking ke grup driver di bawah ini.
       </p>
 
       <div className="mt-6 w-full rounded-2xl bg-white p-5 shadow-soft">
@@ -51,31 +51,21 @@ export default function SuccessScreen({ bookingId, whatsappUrl, message, onHome 
         </div>
       </div>
 
-      <div className="mt-4 w-full rounded-2xl bg-anj-accent/8 p-4 text-left">
-        <div className="flex items-start gap-2">
-          <Info size={16} className="mt-0.5 shrink-0 text-anj-accent" />
-          <p className="text-xs leading-relaxed text-anj-ink">
-            <span className="font-bold">Langkah selanjutnya:</span><br />
-            1. Tekan tombol <span className="font-bold">Buka WhatsApp</span> di bawah<br />
-            2. Pilih grup kota Anda di WhatsApp<br />
-            3. Tahan kolom pesan &gt; <span className="font-bold">Tempel</span><br />
-            4. Tekan <span className="font-bold">Kirim</span>
-          </p>
-        </div>
+      <div className="mt-5 w-full space-y-3">
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="btn-primary w-full">
+          <MessageCircle size={18} /> Kirim ke Grup WhatsApp
+        </a>
+        <button onClick={copyMessage} className="btn-ghost w-full">
+          {copied ? <><ClipboardCheck size={18} /> Tersalin!</> : <><Copy size={18} /> Salin Teks Booking</>}
+        </button>
       </div>
 
+      <p className="mt-3 w-full text-left text-[11px] leading-relaxed text-anj-muted">
+        <span className="font-bold">Kirim ke Grup WhatsApp</span> akan langsung membuka grup dengan teks pesan. Jika teks tidak muncul otomatis di beberapa versi WhatsApp, gunakan tombol <span className="font-bold">Salin Teks Booking</span> lalu tempelkan secara manual di grup.
+      </p>
+
       <div className="mt-4 w-full">
-        <div className="mb-2 flex items-center justify-between">
-          <span className="text-xs font-bold uppercase tracking-wide text-anj-muted">Teks Booking</span>
-          <button
-            onClick={copyMessage}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold transition ${
-              copied ? 'bg-green-100 text-green-600' : 'bg-anj-bg text-anj-accent hover:bg-anj-accent hover:text-white'
-            }`}
-          >
-            {copied ? <><ClipboardCheck size={13} /> Tersalin</> : <><Copy size={13} /> Salin Ulang</>}
-          </button>
-        </div>
+        <span className="mb-2 block text-xs font-bold uppercase tracking-wide text-anj-muted">Teks Booking</span>
         <textarea
           readOnly
           value={message}
@@ -85,10 +75,7 @@ export default function SuccessScreen({ bookingId, whatsappUrl, message, onHome 
         />
       </div>
 
-      <div className="mt-6 w-full space-y-3">
-        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="btn-primary w-full">
-          <MessageCircle size={18} /> Buka WhatsApp
-        </a>
+      <div className="mt-5 w-full">
         <button onClick={onHome} className="btn-ghost w-full">
           <Home size={18} /> Kembali ke Beranda
         </button>
