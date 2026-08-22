@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CheckCircle2, MessageCircle, Home, Copy, ClipboardCheck } from 'lucide-react';
+import { CheckCircle2, MessageCircle, Home, Copy, ClipboardCheck, Send, AlertCircle } from 'lucide-react';
 
 interface Props {
   bookingId: string;
@@ -10,10 +10,21 @@ interface Props {
 
 export default function SuccessScreen({ bookingId, whatsappUrl, message, onHome }: Props) {
   const [copied, setCopied] = useState(false);
+  const [sentToGroup, setSentToGroup] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
+
+  const sendToGroup = async () => {
+    try {
+      await navigator.clipboard.writeText(message);
+    } catch {
+      // clipboard may fail in some browsers; user can still copy manually
+    }
+    setSentToGroup(true);
+    window.location.href = whatsappUrl;
+  };
 
   const copyMessage = async () => {
     try {
@@ -35,7 +46,7 @@ export default function SuccessScreen({ bookingId, whatsappUrl, message, onHome 
 
       <h2 className="text-2xl font-extrabold text-anj-ink">Booking Anjem Siap Dikirim</h2>
       <p className="mt-2 text-sm leading-relaxed text-anj-muted">
-        Pilih salah satu cara mengirim pesan booking ke grup driver di bawah ini.
+        Tekan tombol di bawah, teks booking akan tersalin otomatis dan grup WhatsApp terbuka. Tinggal tempel dan kirim.
       </p>
 
       <div className="mt-6 w-full rounded-2xl bg-white p-5 shadow-soft">
@@ -52,16 +63,34 @@ export default function SuccessScreen({ bookingId, whatsappUrl, message, onHome 
       </div>
 
       <div className="mt-5 w-full space-y-3">
-        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="btn-primary w-full">
-          <MessageCircle size={18} /> Kirim ke Grup WhatsApp
-        </a>
+        <button onClick={sendToGroup} className="btn-primary w-full">
+          <Send size={18} /> Kirim ke Grup WhatsApp
+        </button>
         <button onClick={copyMessage} className="btn-ghost w-full">
-          {copied ? <><ClipboardCheck size={18} /> Tersalin!</> : <><Copy size={18} /> Salin Teks Booking</>}
+          {copied ? <><ClipboardCheck size={18} /> Tersalin!</> : <><Copy size={18} /> Salin Teks Saja</>}
         </button>
       </div>
 
+      {sentToGroup && (
+        <div className="mt-4 flex items-start gap-2 rounded-2xl bg-amber-50 p-4 text-left">
+          <AlertCircle size={18} className="mt-0.5 shrink-0 text-amber-500" />
+          <div>
+            <p className="text-sm font-bold text-amber-700">Teks sudah tersalin otomatis!</p>
+            <p className="mt-1 text-xs leading-relaxed text-amber-600">
+              Grup WhatsApp sudah terbuka. Sekarang <span className="font-bold">tahan kolom pesan</span> di grup, pilih <span className="font-bold">Tempel</span>, lalu <span className="font-bold">Kirim</span>. Jika grup belum terbuka, tekan tombol di bawah.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {sentToGroup && (
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="btn-ghost mt-3 w-full">
+          <MessageCircle size={18} /> Buka Grup Lagi
+        </a>
+      )}
+
       <p className="mt-3 w-full text-left text-[11px] leading-relaxed text-anj-muted">
-        <span className="font-bold">Kirim ke Grup WhatsApp</span> akan langsung membuka grup dengan teks pesan. Jika teks tidak muncul otomatis di beberapa versi WhatsApp, gunakan tombol <span className="font-bold">Salin Teks Booking</span> lalu tempelkan secara manual di grup.
+        WhatsApp grup tidak bisa diisi teks otomatis seperti chat personal. Itu batasan dari WhatsApp. Karena itu teks disalin otomatis ke clipboard saat Anda menekan tombol — tinggal tempel di grup.
       </p>
 
       <div className="mt-4 w-full">
