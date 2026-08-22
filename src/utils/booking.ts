@@ -2,12 +2,6 @@ import type { VehicleId } from '@/config';
 import { FARE_CONFIG } from '@/config';
 import { formatKm, formatMinutes, formatRupiah } from '@/utils/format';
 
-export interface PlaceInfo {
-  url: string;
-  lat: number;
-  lng: number;
-}
-
 export interface RouteInfo {
   distanceKm: number;
   durationMin: number;
@@ -25,8 +19,8 @@ export interface CustomerData {
 export interface BookingState {
   regionId: string;
   vehicleId: VehicleId;
-  pickup: PlaceInfo | null;
-  dropoff: PlaceInfo | null;
+  pickupUrl: string;
+  dropoffUrl: string;
   route: RouteInfo | null;
   customer: CustomerData;
   bookingId: string;
@@ -36,8 +30,8 @@ export function buildWhatsAppMessage(b: {
   bookingId: string;
   regionName: string;
   vehicleId: VehicleId;
-  pickup: PlaceInfo;
-  dropoff: PlaceInfo;
+  pickupUrl: string;
+  dropoffUrl: string;
   route: RouteInfo;
   customer: CustomerData;
   trip: number;
@@ -60,12 +54,10 @@ export function buildWhatsAppMessage(b: {
     '',
     'PERJALANAN',
     '📍 Titik Jemput:',
-    b.pickup.url,
-    `   (${b.pickup.lat}, ${b.pickup.lng})`,
+    b.pickupUrl,
     '',
     '📍 Titik Antar:',
-    b.dropoff.url,
-    `   (${b.dropoff.lat}, ${b.dropoff.lng})`,
+    b.dropoffUrl,
     '',
     '📏 Jarak:',
     `${formatKm(b.route.distanceKm)} km`,

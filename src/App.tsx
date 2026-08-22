@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Bike, Car, ChevronRight, Send, Sparkles, ShieldCheck, Clock4, MapPin } from 'lucide-react';
 import { FARE_CONFIG, REGIONS, type VehicleId } from '@/config';
-import type { BookingState, CustomerData, PlaceInfo, RouteInfo } from '@/utils/booking';
+import type { BookingState, CustomerData, RouteInfo } from '@/utils/booking';
 import { buildWhatsAppMessage, buildWhatsAppUrl } from '@/utils/booking';
 import { calcFare, formatRupiah, generateBookingId, isValidWhatsAppNumber } from '@/utils/format';
-import { estimateRoadKm, estimateMinutes } from '@/utils/maps';
+import { estimateMinutes } from '@/utils/maps';
 import RegionPicker from '@/components/RegionPicker';
 import VehiclePicker, { regionName } from '@/components/VehiclePicker';
 import LocationField from '@/components/LocationField';
@@ -27,21 +27,21 @@ const emptyCustomer: CustomerData = {
 export default function App() {
   const [regionId, setRegionId] = useState('');
   const [vehicleId, setVehicleId] = useState<VehicleId | null>(null);
-  const [pickup, setPickup] = useState<PlaceInfo | null>(null);
-  const [dropoff, setDropoff] = useState<PlaceInfo | null>(null);
+  const [pickupUrl, setPickupUrl] = useState('');
+  const [dropoffUrl, setDropoffUrl] = useState('');
+  const [distanceInput, setDistanceInput] = useState('');
   const [customer, setCustomer] = useState<CustomerData>(emptyCustomer);
   const [bookingId, setBookingId] = useState('');
   const [successUrl, setSuccessUrl] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
+  const distanceKm = parseFloat(distanceInput);
+  const hasDistance = !isNaN(distanceKm) && distanceKm > 0;
+
   const route: RouteInfo | null = useMemo(() => {
-    if (!pickup || !dropoff) return null;
-    const km = estimateRoadKm(
-      { lat: pickup.lat, lng: pickup.lng },
-      { lat: dropoff.lat, lng: dropoff.lng }
-    );
-    return { distanceKm: km, durationMin: estimateMinutes(km) };
-  }, [pickup, dropoff]);
+    if (!hasDistance) return null;
+    return { distanceKm, durationMin: estimateMinutes(distanceKm) };
+  }, [distanceKm, hasDistance]);
 
   const fare = useMemo(() => {
     if (!vehicleId || !route) return null;
@@ -51,9 +51,9 @@ export default function App() {
   const canSubmit =
     !!regionId &&
     !!vehicleId &&
-    !!pickup &&
-    !!dropoff &&
-    !!route &&
+    pickupUrl.trim().length > 0 &&
+    dropoffUrl.trim().length > 0 &&
+    hasDistance &&
     customer.name.trim().length > 1 &&
     isValidWhatsAppNumber(customer.whatsapp) &&
     !!customer.date &&
@@ -73,8 +73,8 @@ export default function App() {
       bookingId: id,
       regionName: region.name,
       vehicleId,
-      pickup: pickup!,
-      dropoff: dropoff!,
+      pickupUrl: pickupUrl.trim(),
+      dropoffUrl: dropoffUrl.trim(),
       route,
       customer,
       trip,
@@ -93,8 +93,9 @@ export default function App() {
     setBookingId('');
     setRegionId('');
     setVehicleId(null);
-    setPickup(null);
-    setDropoff(null);
+    setPickupUrl('');
+    setDropoffUrl('');
+    setDistanceInput('');
     setCustomer(emptyCustomer);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -112,8 +113,8 @@ export default function App() {
   const booking: BookingState = {
     regionId,
     vehicleId: vehicleId ?? 'motor',
-    pickup,
-    dropoff,
+    pickupUrl,
+    dropoffUrl,
     route,
     customer,
     bookingId,
@@ -139,46 +140,52 @@ export default function App() {
             )}
           </Step>
 
-          <Step n={3} title="Titik Jemput" disabled={!vehicleId} done={!!pickup}>
+          <Step n={3} title="Titik Jemput" disabled={!vehicleId} done={pickupUrl.trim().length > 0}>
             {!vehicleId ? (
               <Hint text="Pilih kendaraan dulu untuk melanjutkan." />
             ) : (
               <LocationField
-                label="📍 Pilih titik jemput"
+                label="📍 Link Google Maps titik jemput"
                 placeholder="Tempel link Google Maps lokasi jemput"
-                place={pickup}
-                onConfirm={setPickup}
-                onClear={() => setPickup(null)}
+                value={pickupUrl}
+                onChange={setPickupUrl}
               />
             )}
           </Step>
 
-          <Step n={4} title="Titik Antar" disabled={!pickup} done={!!dropoff}>
-            {!pickup ? (
-              <Hint text="Pilih titik jemput dulu untuk melanjutkan." />
+          <Step n={4} title="Titik Antar" disabled={pickupUrl.trim().length === 0} done={dropoffUrl.trim().length > 0}>
+            {pickupUrl.trim().length === 0 ? (
+              <Hint text="Masukkan link titik jemput dulu untuk melanjutkan." />
             ) : (
               <LocationField
-                label="📍 Pilih titik tujuan"
+                label="📍 Link Google Maps titik antar"
                 placeholder="Tempel link Google Maps lokasi tujuan"
-                place={dropoff}
-                onConfirm={setDropoff}
-                onClear={() => setDropoff(null)}
+                value={dropoffUrl}
+                onChange={setDropoffUrl}
               />
             )}
           </Step>
 
-          {pickup && dropoff && (
-            <TripDetail pickup={pickup} dropoff={dropoff} route={route} />
+          {pickupUrl.trim() && dropoffUrl.trim() && (
+            <Step n={5} title="Jarak & Detail Perjalanan" done={hasDistance}>
+              <TripDetail
+                pickupUrl={pickupUrl.trim()}
+                dropoffUrl={dropoffUrl.trim()}
+                distanceKm={distanceInput}
+                onDistanceChange={setDistanceInput}
+                durationMin={route?.durationMin ?? null}
+              />
+            </Step>
           )}
 
           {vehicleId && route && (
-            <Step n={5} title="Estimasi Biaya" done>
+            <Step n={6} title="Estimasi Biaya" done>
               <FareSummary vehicleId={vehicleId} route={route} />
             </Step>
           )}
 
           {route && (
-            <Step n={6} title="Data Pemesan" done={!!customer.name && isValidWhatsAppNumber(customer.whatsapp) && !!customer.date && !!customer.time}>
+            <Step n={7} title="Data Pemesan" done={!!customer.name && isValidWhatsAppNumber(customer.whatsapp) && !!customer.date && !!customer.time}>
               <CustomerForm value={customer} onChange={setCustomer} />
             </Step>
           )}

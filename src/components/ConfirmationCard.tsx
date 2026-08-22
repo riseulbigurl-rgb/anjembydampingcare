@@ -1,4 +1,4 @@
-import { Bike, Car, MapPin, Flag, Ruler, Clock, Calendar, Clock3, User, Phone, Users, StickyNote, Receipt } from 'lucide-react';
+import { Bike, Car, MapPin, Flag, Ruler, Clock, Calendar, Clock3, User, Phone, Users, StickyNote, Receipt, ExternalLink } from 'lucide-react';
 import type { BookingState } from '@/utils/booking';
 import { calcFare, formatDateID, formatKm, formatMinutes, formatRupiah } from '@/utils/format';
 import { regionName } from '@/components/VehiclePicker';
@@ -13,8 +13,6 @@ export default function ConfirmationCard({ booking }: Props) {
   const region = regionName(booking.regionId);
 
   const rows = [
-    { icon: MapPin, label: 'Titik Jemput', value: booking.pickup?.url },
-    { icon: Flag, label: 'Titik Antar', value: booking.dropoff?.url },
     { icon: Ruler, label: 'Jarak', value: `${formatKm(booking.route!.distanceKm)} km` },
     { icon: Clock, label: 'Estimasi perjalanan', value: formatMinutes(booking.route!.durationMin) },
     { icon: Calendar, label: 'Tanggal', value: formatDateID(booking.customer.date) },
@@ -46,6 +44,43 @@ export default function ConfirmationCard({ booking }: Props) {
           <div className="text-right">
             <p className="text-xs font-semibold uppercase tracking-wide text-anj-muted">Kendaraan</p>
             <p className="text-sm font-bold text-anj-ink">{v === 'motor' ? '🛵 Motor' : '🚗 Mobil'}</p>
+          </div>
+        </div>
+
+        <div className="mb-4 space-y-3 rounded-2xl bg-anj-bg/40 p-3.5">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white text-anj-accent shadow-softer">
+              <MapPin size={14} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-semibold uppercase tracking-wide text-anj-muted">Titik Jemput</p>
+              <p className="break-all text-sm font-semibold text-anj-ink">{booking.pickupUrl}</p>
+              <a
+                href={booking.pickupUrl.startsWith('http') ? booking.pickupUrl : `https://${booking.pickupUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-0.5 inline-flex items-center gap-1 text-xs font-bold text-anj-accent hover:underline"
+              >
+                <ExternalLink size={11} /> Lihat di Maps
+              </a>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white text-anj-accent shadow-softer">
+              <Flag size={14} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-semibold uppercase tracking-wide text-anj-muted">Titik Antar</p>
+              <p className="break-all text-sm font-semibold text-anj-ink">{booking.dropoffUrl}</p>
+              <a
+                href={booking.dropoffUrl.startsWith('http') ? booking.dropoffUrl : `https://${booking.dropoffUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-0.5 inline-flex items-center gap-1 text-xs font-bold text-anj-accent hover:underline"
+              >
+                <ExternalLink size={11} /> Lihat di Maps
+              </a>
+            </div>
           </div>
         </div>
 
